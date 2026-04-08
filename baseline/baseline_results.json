@@ -1,0 +1,10 @@
+{
+  "model": "gpt-4o-mini",
+  "seed": 42,
+  "scores": {
+    "task_easy": 0.0,
+    "task_medium": 0.0,
+    "task_hard": 0.0
+  },
+  "average": 0.0
+}

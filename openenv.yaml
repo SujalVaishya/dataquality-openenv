@@ -1,0 +1,81 @@
+name: data-quality-triage
+version: "1.0.0"
+description: >
+  An AI agent environment for real-world data quality triage.
+  Agents inspect messy tabular datasets, identify data quality issues
+  (missing values, type errors, duplicates, outliers, format violations),
+  and apply targeted fixes — exactly as a data engineer would.
+author: dataquality-env
+license: MIT
+tags:
+  - openenv
+  - data-engineering
+  - data-quality
+  - real-world
+  - tabular
+
+observation_space:
+  type: object
+  description: Current dataset state + issue registry + action history
+  fields:
+    dataset_preview: "List[Dict] — first 20 rows of current dataset"
+    schema: "Dict[str, str] — column names → inferred dtype"
+    issue_registry: "List[Dict] — detected issues with severity and location"
+    action_history: "List[str] — actions taken this episode"
+    step_count: "int — steps taken"
+    task_description: "str — natural language task objective"
+    metrics: "Dict[str, float] — completeness, consistency, validity scores (0–1)"
+
+action_space:
+  type: object
+  description: Structured data-quality action
+  fields:
+    action_type:
+      type: string
+      enum:
+        - inspect_column
+        - fill_missing
+        - drop_duplicates
+        - fix_type
+        - flag_outlier
+        - apply_regex_fix
+        - drop_rows
+        - rename_column
+        - submit
+    parameters: "Dict[str, Any] — action-specific parameters"
+
+tasks:
+  - id: task_easy
+    name: "Basic Completeness Fix"
+    difficulty: easy
+    description: >
+      A customer contacts CSV has missing email addresses and phone numbers.
+      Fill all missing emails using a domain pattern, fill missing phones with
+      a sentinel value, and remove exact duplicate rows.
+    max_steps: 15
+    target_score: 0.85
+
+  - id: task_medium
+    name: "Type Errors and Format Violations"
+    difficulty: medium
+    description: >
+      A sales transactions dataset has mixed date formats, revenue stored as
+      strings with currency symbols, negative quantities, and duplicated
+      transaction IDs. Clean all issues to restore analytical readiness.
+    max_steps: 20
+    target_score: 0.80
+
+  - id: task_hard
+    name: "Multi-Issue Production Dataset"
+    difficulty: hard
+    description: >
+      A healthcare appointments dataset has missing patient IDs, inconsistent
+      date/time formats across columns, outlier ages (negatives, >130),
+      duplicate appointment records with conflicting statuses, invalid
+      categorical values, and referential integrity violations.
+      Resolve all issues while preserving maximum valid records.
+    max_steps: 30
+    target_score: 0.75
+
+entrypoint: "dataquality_env.env:DataQualityEnv"
+baseline_script: "baseline/run_baseline.py"
